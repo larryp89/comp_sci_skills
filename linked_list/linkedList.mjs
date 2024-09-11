@@ -135,4 +135,124 @@ class LinkedList {
     }
     return false;
   }
+
+  // Returns index of node containing value, or null if not found
+  find(value) {
+    if (this.head === null) return false;
+    let currentNode = this.head;
+    let index = 0;
+    while (currentNode !== null) {
+      if (currentNode.value === value) return index;
+      currentNode = currentNode.nextNode;
+      index++;
+    }
+    return null;
+  }
+
+  toString() {
+    if (this.head === null) return "The list is empty";
+    let currentNode = this.head;
+    let printedString = "";
+    while (currentNode !== null) {
+      printedString += `${currentNode.value} -> `;
+      currentNode = currentNode.nextNode;
+    }
+    printedString += "null";
+    return printedString;
+  }
+
+  // Insert new node with value at index
+  insertAt(value, index) {
+    if (this.head === null) return "Invalid Index";
+
+    // If inserting at the head
+    if (index === 0) {
+      this.prepend(value);
+      return;
+    }
+
+    let currentNode = this.head;
+    let counter = 0;
+    const newNode = new Node(value);
+
+    while (currentNode !== null) {
+      // Insert the new node when we reach index - 1
+      if (counter === index - 1) {
+        newNode.nextNode = currentNode.nextNode;
+        currentNode.nextNode = newNode;
+
+        // Check if the new node is now the last node (update tail if needed)
+        if (newNode.nextNode === null) {
+          this.tail = newNode;
+        }
+        return;
+      }
+
+      currentNode = currentNode.nextNode;
+      counter++;
+    }
+
+    // If index is greater than the length of the list
+    return "Invalid Index";
+  }
+
+  // Remove node at index
+  removeAt(index) {
+    if (this.head === null) return null; // List is empty
+
+    if (index === 0) {
+      // Removing the head
+      const removedNode = this.head;
+      this.head = this.head.nextNode;
+
+      // If the list becomes empty, reset the tail
+      if (this.head === null) {
+        this.tail = null;
+      }
+      return removedNode;
+    }
+
+    let currentNode = this.head;
+    let counter = 0;
+
+    while (currentNode !== null) {
+      if (counter === index - 1) {
+        if (currentNode.nextNode === null) {
+          return "Invalid Index"; // Since the subsequent node is removed, null means at end of the list
+        }
+
+        const removedNode = currentNode.nextNode;
+        currentNode.nextNode = removedNode.nextNode;
+
+        // If the node removed was the tail, update the tail
+        if (removedNode.nextNode === null) {
+          this.tail = currentNode;
+        }
+
+        return removedNode;
+      }
+
+      currentNode = currentNode.nextNode;
+      counter++;
+    }
+
+    // If the index is greater than the length of the list (However, thsi will enver execute as index will be out of range first)
+    return "Invalid Index";
+  }
 }
+
+const list = new LinkedList();
+
+list.append("dog");
+list.append("cat");
+list.append("parrot");
+list.append("hamster");
+list.append("snake");
+list.append("turtle");
+console.log(list.toString());
+console.log(list.find("snake"));
+console.log(list.contains("hamster"));
+console.log(list.contains("chicken"));
+console.log(list.removeAt(8));
+list.insertAt("HARRY POTTER", 3);
+console.log(list.toString());
