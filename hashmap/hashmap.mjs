@@ -48,36 +48,32 @@ class HashMap {
 
   // Assigns key/value pair to hash table
   set(key, value) {
-    if (this.checkBucketSize()) {
-      this.increaseTableSize();
-    }
-
     // Hash the key and get a bucket to generate index
     const index = this.hash(key);
     let bucket = this.hashTable[index];
 
-    // If the the bucket is null, create a linked list and set it to the index
     if (bucket === null) {
+      // Set bucket to linked list, and hashtable[i] to bucket
       bucket = new LinkedList();
       this.hashTable[index] = bucket;
-
-      // Append the key/value pair to the list
       bucket.append(key, value);
       this.size++;
-      console.log(bucket.toString());
-      return;
-    }
-    // Since the bucket exists, check it is not already in the list
-    // If it is, update it
-    if (bucket.containsKey(key)) {
+
+      // If bucket containst the key, udpate it
+    } else if (bucket.containsKey(key)) {
       bucket.updateValue(key, value);
-      console.log(bucket.toString());
       return;
+
+      // Otherwise add the new key
+    } else {
+      bucket.append(key, value);
+      this.size++;
     }
-    // Otherwise add the new key/value pair
-    bucket.append(key, value);
-    this.size++;
-    console.log(bucket.toString());
+
+    if (this.checkBucketSize()) {
+      this.increaseTableSize();
+    }
+
     return;
   }
 
@@ -174,5 +170,9 @@ test.set("ice cream", "white");
 test.set("jacket", "blue");
 test.set("kite", "pink");
 test.set("lion", "golden");
-test.set("lion", "WHERE?!");
+test.set("lion", "Brown");
+// test.set("kite", "Sky");
+// test.set("moon", "grey");
+
+console.log(test.entries());
 console.log(test.length());
