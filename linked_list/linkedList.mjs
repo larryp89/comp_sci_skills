@@ -97,4 +97,42 @@ class LinkedList {
     }
     return null;
   }
+
+  // Remove last node in the list
+  pop() {
+    // If the list is empty return null
+    if (this.head === null) return null;
+    // If there is only one node, reset all to null
+    if (this.head === this.tail) {
+      const removedNode = this.head;
+      this.head = null;
+      this.tail = null;
+      return removedNode;
+    }
+
+    let currentNode = this.head;
+    // If the node after next is null, remove the next node
+    while (currentNode.nextNode.nextNode != null) {
+      currentNode = currentNode.nextNode;
+    }
+
+    // Remove the node pointing to null
+    const removedNode = currentNode.nextNode;
+    // Set current node as tail and set next node to null
+    this.tail = currentNode;
+    currentNode.nextNode = null;
+
+    return removedNode;
+  }
+
+  // Return true if passed value passed is in the list, otherwise false
+  contains(value) {
+    if (this.head === null) return false;
+    let currentNode = this.head;
+    while (currentNode !== null) {
+      if (currentNode.value === value) return true;
+      currentNode = currentNode.nextNode;
+    }
+    return false;
+  }
 }
