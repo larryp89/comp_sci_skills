@@ -9,6 +9,32 @@ class HashMap {
     this.load = 0.75;
   }
 
+  checkBucketSize() {
+    return this.size > this.capacity * this.load;
+  }
+
+  // Replicate entire table using new variables
+  increaseTableSize() {
+    const oldNumBuckets = this.numBuckets;
+    const oldHashTable = this.hashTable;
+
+    // Increase bucket size and create new table
+    this.numBuckets *= 2;
+    this.hashTable = new Array(this.numBuckets).fill(null);
+    this.size = 0;
+    this.capacity = this.hashTable.length;
+
+    // Rehash all existing entries
+    for (let i = 0; i < oldNumBuckets; i++) {
+      if (oldHashTable[i] !== null) {
+        const entries = oldHashTable[i].getEntries();
+        for (let [key, value] of entries) {
+          this.set(key, value);
+        }
+      }
+    }
+  }
+
   hash(key) {
     let hashCode = 0;
 
@@ -22,7 +48,10 @@ class HashMap {
 
   // Assigns key/value pair to hash table
   set(key, value) {
-    //TODO Add Load Check
+    if (this.checkBucketSize()) {
+      this.increaseTableSize();
+    }
+
     // Hash the key and get a bucket to generate index
     const index = this.hash(key);
     let bucket = this.hashTable[index];
@@ -64,6 +93,7 @@ class HashMap {
   has(key) {
     const index = this.hash(key);
     let bucket = this.hashTable[index];
+    if (bucket === null) return false;
     return bucket.hasKey(key);
   }
 
@@ -71,11 +101,13 @@ class HashMap {
   remove(key) {
     const index = this.hash(key);
     let bucket = this.hashTable[index];
+    if (bucket === null) return false;
     return bucket.removeNode(key);
   }
 
   // Get number of stored keys
   length() {
+    console.log(this.hashTable.length);
     return this.size;
   }
 
@@ -84,6 +116,48 @@ class HashMap {
     let newHashTable = new Array(this.numBuckets).fill(null);
     this.hashTable = newHashTable;
     this.size = 0;
+  }
+
+  // Return array of all keys
+  keys() {
+    const allKeys = [];
+    // Iterate over hashmap
+    for (let i = 0; i < this.numBuckets; i++) {
+      // If it's not null, iterate through linked list
+      if (this.hashTable[i] !== null) {
+        const keys = this.hashTable[i].getKeys();
+        allKeys.push(...keys);
+      }
+    }
+    return allKeys;
+  }
+
+  // Return array of all values
+  values() {
+    const allValues = [];
+    // Iterate over hashmap
+    for (let i = 0; i < this.numBuckets; i++) {
+      // If it's not null, iterate through linked list
+      if (this.hashTable[i] !== null) {
+        const values = this.hashTable[i].getValues();
+        allValues.push(...values);
+      }
+    }
+    return allValues;
+  }
+
+  // Return array of all entries stored as individual arrays
+  entries() {
+    const allEntries = [];
+    // Iterate over hashmap
+    for (let i = 0; i < this.numBuckets; i++) {
+      // If it's not null, iterate through linked list
+      if (this.hashTable[i] !== null) {
+        const entries = this.hashTable[i].getEntries();
+        allEntries.push(...entries);
+      }
+    }
+    return allEntries;
   }
 }
 
@@ -100,16 +174,5 @@ test.set("ice cream", "white");
 test.set("jacket", "blue");
 test.set("kite", "pink");
 test.set("lion", "golden");
-test.set("lion", "cheese");
-test.set("ice cream,", "Tastes great");
-test.set("chaaa", "Ooooh");
-console.log(test.get("kite"));
-console.log(test.get("frog"));
-console.log(test.has("lion"));
-console.log(test.has("chicken"));
-console.log(test.remove("chicken"));
-console.log(test.remove("lion"));
+test.set("lion", "WHERE?!");
 console.log(test.length());
-console.log(test.clear());
-console.log(test.length());
-console.log(test.get("frog"));
