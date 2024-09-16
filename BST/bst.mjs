@@ -8,24 +8,25 @@ class Node {
 
 class Tree {
   constructor(array) {
-    this.array = array; // Set the array before calling buildTree
-    this.root = this.buildTree(); // Now call buildTree
+    constructor(array) {
+      const sortedUniqueArray = [...new Set(array)].sort((a, b) => a - b); // Sort array first and spread into new array
+      this.root = this.buildTree(sortedUniqueArray);
+    }
   }
 
-  buildTree() {
+  buildTree(array) {
     // Step 1: Take an unsorted array and build a search tree
 
     // Set the root node as the first element in the array
-    let root = new Node(this.array[0]); // Use this.array instead of array
+    let root = new Node(array[0]); // Use this.array instead of array
 
-    for (let i = 1; i < this.array.length; i++) {
-      this.insertNode(root, this.array[i]); // Insert each element starting from root
+    for (let i = 1; i < array.length; i++) {
+      this.insertNode(root, array[i]); // Insert each element starting from root
     }
 
     // Step 2: in-order traversal to get data from each node
     let sortedArray = this.inOrderTraversal(root);
     sortedArray.filter((item, index) => sortedArray.indexOf(item) === index);
-    console.log(sortedArray);
 
     // Step 3: Build balanced binary tree from sorted array
     let start = 0;
@@ -123,6 +124,140 @@ class Tree {
     return root;
   }
 
+  // Returns node with a given value
+  find(value) {
+    let root = this.root;
+    while (root !== null) {
+      if (value === root.data) return root;
+      if (value < root.data) {
+        root = root.left;
+      } else if (value > root.data) {
+        root = root.right;
+      }
+    }
+    return false;
+  }
+
+  levelOrder(callback) {
+    if (typeof callback !== "function") {
+      throw new Error("Callback function required");
+    }
+
+    let root = this.root;
+    const queue = [];
+    queue.push(root);
+
+    while (queue.length > 0) {
+      const node = queue.shift();
+      callback(node);
+
+      if (node.left !== null) {
+        queue.push(node.left);
+      }
+      if (node.right !== null) {
+        queue.push(node.right);
+      }
+    }
+  }
+
+  inOrder(callback) {
+    if (typeof callback !== "function") {
+      throw new Error("Callback function required");
+    }
+
+    const inOrderHelper = (node) => {
+      if (node === null) return;
+      inOrderHelper(node.left);
+      callback(node);
+      inOrderHelper(node.right);
+    };
+
+    inOrderHelper(this.root);
+  }
+
+  preOrder(callback) {
+    if (typeof callback !== "function") {
+      throw new Error("Callback function required");
+    }
+
+    const preOrderHelper = (node) => {
+      if (node === null) return;
+      callback(node);
+      preOrderHelper(node.left);
+      preOrderHelper(node.right);
+    };
+    preOrderHelper(this.root);
+  }
+
+  postOrder(callback) {
+    if (typeof callback !== "function") {
+      throw new Error("Callback function required");
+    }
+
+    const postOrderHelper = (node) => {
+      if (node === null) return;
+      postOrderHelper(node.left);
+      postOrderHelper(node.right);
+      callback(node);
+    };
+    postOrderHelper(this.root);
+  }
+
+  height(node) {
+    if (node === null) return -1;
+
+    // Recursively get the height of the left and right subtrees
+    let leftHeight = this.height(node.left);
+    let rightHeight = this.height(node.right);
+
+    // The height of the current node is the max height of its subtrees + 1
+    return Math.max(leftHeight, rightHeight) + 1;
+  }
+
+  // Find how deep in a tree the node is
+  depth(node) {
+    const depthHelper = (currentNode, depthCount = 0) => {
+      if (currentNode === null) return -1; // Node not found, return -1
+      if (node.data === currentNode.data) {
+        return depthCount; // Node is found, return depth
+      }
+      if (node.data < currentNode.data) {
+        return depthHelper(currentNode.left, depthCount + 1); // Go to left subtree
+      } else {
+        return depthHelper(currentNode.right, depthCount + 1); // Go to right subtree
+      }
+    };
+    return depthHelper(this.root);
+  }
+
+  isBalanced() {
+    const checkBalance = (node) => {
+      // If a node is null, it is balanced
+      if (node === null) return { height: -1, balanced: true };
+
+      const left = checkBalance(node.left);
+      const right = checkBalance(node.right);
+
+      if (!left.balanced || !right.balanced) {
+        return { height: 0, balanced: false };
+      }
+
+      if (Math.abs(left.height - right.height) > 1) {
+        return { height: 0, balanced: false };
+      }
+
+      const height = 1 + Math.max(left.height, right.height);
+      return { height, balanced: true };
+    };
+
+    return checkBalance(this.root).balanced;
+  }
+
+  rebalance() {
+    let newArray = this.inOrderTraversal(this.root);
+    this.root = this.buildTree(newArray);
+  }
+
   prettyPrint(node, prefix = "", isLeft = true) {
     if (node === null) {
       return;
@@ -141,10 +276,20 @@ class Tree {
   }
 }
 
-const tree = new Tree([1, 10, 15, 7, 11, 7, 23, 1, 16]);
+function generateRandomArray(array = []) {
+  if (array.length === 100) return array;
+  let randomNumber = Math.floor(Math.random() * 100);
+  array.push(randomNumber);
+  return generateRandomArray(array);
+}
 
-tree.insert(300);
-tree.insert(2);
+let randArray = generateRandomArray();
+const tree = new Tree(randArray);
+
+tree.insert(140);
+tree.insert(150);
+tree.insert(189);
 tree.prettyPrint(tree.root);
-tree.deleteItem(23);
-tree.prettyPrint(tree.root);
+console.log(tree.isBalanced());
+tree.rebalance();
+tree.isBalanced();
