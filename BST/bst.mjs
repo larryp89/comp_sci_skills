@@ -8,31 +8,16 @@ class Node {
 
 class Tree {
   constructor(array) {
-    constructor(array) {
-      const sortedUniqueArray = [...new Set(array)].sort((a, b) => a - b); // Sort array first and spread into new array
-      this.root = this.buildTree(sortedUniqueArray);
-    }
+    const sortedUniqueArray = [...new Set(array)].sort((a, b) => a - b);
+    this.root = this.buildTree(sortedUniqueArray);
   }
 
-  buildTree(array) {
-    // Step 1: Take an unsorted array and build a search tree
-
-    // Set the root node as the first element in the array
-    let root = new Node(array[0]); // Use this.array instead of array
-
-    for (let i = 1; i < array.length; i++) {
-      this.insertNode(root, array[i]); // Insert each element starting from root
-    }
-
-    // Step 2: in-order traversal to get data from each node
-    let sortedArray = this.inOrderTraversal(root);
-    sortedArray.filter((item, index) => sortedArray.indexOf(item) === index);
-
-    // Step 3: Build balanced binary tree from sorted array
-    let start = 0;
-    let end = sortedArray.length - 1;
-    root = this.buildBalancedTree(sortedArray, start, end);
-
+  buildTree(sortedArray) {
+    if (sortedArray.length === 0) return null;
+    const mid = Math.floor(sortedArray.length / 2);
+    const root = new Node(sortedArray[mid]);
+    root.left = this.buildTree(sortedArray.slice(0, mid));
+    root.right = this.buildTree(sortedArray.slice(mid + 1));
     return root;
   }
 
@@ -94,7 +79,7 @@ class Tree {
   }
 
   deleteItem(value) {
-    this.deleteNode(this.root, value);
+    this.root = this.deleteNode(this.root, value);
   }
 
   inOrderTraversal(node, array = []) {
@@ -173,6 +158,7 @@ class Tree {
     };
 
     inOrderHelper(this.root);
+    return;
   }
 
   preOrder(callback) {
@@ -187,6 +173,7 @@ class Tree {
       preOrderHelper(node.right);
     };
     preOrderHelper(this.root);
+    return;
   }
 
   postOrder(callback) {
@@ -254,8 +241,8 @@ class Tree {
   }
 
   rebalance() {
-    let newArray = this.inOrderTraversal(this.root);
-    this.root = this.buildTree(newArray);
+    const sortedArray = this.inOrderTraversal(this.root);
+    this.root = this.buildTree(sortedArray);
   }
 
   prettyPrint(node, prefix = "", isLeft = true) {
@@ -286,10 +273,16 @@ function generateRandomArray(array = []) {
 let randArray = generateRandomArray();
 const tree = new Tree(randArray);
 
+tree.prettyPrint(tree.root);
+console.log(tree.isBalanced());
 tree.insert(140);
 tree.insert(150);
 tree.insert(189);
 tree.prettyPrint(tree.root);
-console.log(tree.isBalanced());
+// console.log(tree.isBalanced());
 tree.rebalance();
-tree.isBalanced();
+// tree.prettyPrint(tree.root);
+// console.log(tree.isBalanced());
+// console.log(tree.preOrder((node) => console.log(node.data)));
+// console.log(tree.inOrder((node) => console.log(node.data)));
+// console.log(tree.postOrder((node) => console.log(node.data)));
